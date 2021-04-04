@@ -53,13 +53,28 @@ router.get('/', (req, res, next) => {
   }
 */
 router.get('/:scheme_id', checkSchemeId, (req, res, next) => {
-  const { scheme_id } = req.params
-
+  const scheme_id = req.params.scheme_id;
   Schemes.findById(scheme_id)
     .then(scheme => {
-      res.json(scheme)
+      console.log(scheme);
+      const newScheme = {
+        "scheme_id" : 0,
+        "scheme_name": '',
+        "steps": []
+      };
+      for(let i=0; i<scheme.length;i++){
+        if(i==0){
+            newScheme.scheme_id = scheme[i].scheme_id;
+            newScheme.scheme_name = scheme[i].scheme_name;
+          }
+          newScheme.steps.push({"step_id":scheme[i].step_id, "step_number":scheme[i].step_number, "instructions":scheme[i].instructions });
+        }
+     
+      res.json(newScheme)
     })
-    .catch(next)
+    .catch(error => {
+      console.log(error);
+    })
 })
 
 /*
@@ -82,7 +97,7 @@ router.get('/:scheme_id', checkSchemeId, (req, res, next) => {
   ]
 */
 router.get('/:scheme_id/steps', checkSchemeId, (req, res, next) => {
-  const { scheme_id } = req.params
+  const scheme_id = req.params.scheme_id;
 
   Schemes.findSteps(scheme_id)
     .then(steps => {
@@ -101,7 +116,7 @@ router.get('/:scheme_id/steps', checkSchemeId, (req, res, next) => {
   }
 */
 router.post('/', validateScheme, (req, res, next) => {
-  const scheme = req.body
+  const scheme = req.body;
 
   Schemes.add(scheme)
     .then(scheme => {
