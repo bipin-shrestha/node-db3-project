@@ -1,3 +1,5 @@
+const db = require("../../data/db-config");
+
 function find() { // EXERCISE A
   /*
     1A- Study the SQL query below running it in SQLite Studio against `data/schemes.db3`.
@@ -15,6 +17,8 @@ function find() { // EXERCISE A
     2A- When you have a grasp on the query go ahead and build it in Knex.
     Return from this function the resulting dataset.
   */
+return db('schemes'); 
+
 }
 
 function findById(scheme_id) { // EXERCISE B
@@ -61,7 +65,7 @@ function findById(scheme_id) { // EXERCISE B
         "scheme_id": 1,
         "scheme_name": "World Domination",
         "steps": [
-          {
+          {        
             "step_id": 2,
             "step_number": 1,
             "instructions": "solve prime number theory"
@@ -83,6 +87,13 @@ function findById(scheme_id) { // EXERCISE B
         "steps": []
       }
   */
+ 
+
+  return db('schemes as sc')
+          .leftJoin('steps as st','sc.scheme_id','st.scheme_id')
+          .where({ 'sc.scheme_id':scheme_id})
+          .orderBy('st.step_number')
+          .select('sc.scheme_id','sc.scheme_name','st.step_id','st.step_number','st.instructions');
 }
 
 function findSteps(scheme_id) { // EXERCISE C
@@ -106,20 +117,26 @@ function findSteps(scheme_id) { // EXERCISE C
         }
       ]
   */
+ return db('schemes as sc').join('steps as st','st.scheme_id','sc.scheme_id')
+          .where({'st.scheme_id':scheme_id})
+          .orderBy('st.step_number')
+          .select('st.step_id','st.step_number','st.instructions','sc.scheme_name');
 }
 
 function add(scheme) { // EXERCISE D
   /*
     1D- This function creates a new scheme and resolves to _the newly created scheme_.
   */
+ return db('schemes').insert(scheme);
 }
 
 function addStep(scheme_id, step) { // EXERCISE E
   /*
     1E- This function adds a step to the scheme with the given `scheme_id`
     and resolves to _all the steps_ belonging to the given `scheme_id`,
-    including the newly created one.
+    including the newly created one. 
   */
+ return db('steps').insert({"step_number": step.step_number, "instructions": step.instructions, "scheme_id": scheme_id})
 }
 
 module.exports = {
